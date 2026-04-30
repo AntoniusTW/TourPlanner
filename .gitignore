@@ -1,0 +1,31 @@
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# iCloud
+.nosync
+.iCloud
+
+# Build / Output
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# Sensitive
+.env
+.env.local
