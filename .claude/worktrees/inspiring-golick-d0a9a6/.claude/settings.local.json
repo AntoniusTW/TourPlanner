@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem \"C:\\\\Users\\\\milut\\\\Nextcloud\\\\FH\\\\SEM4\\\\SWEN\\\\tourplanner\\\\TourPlanner\\\\frontend\" -Name)",
+      "Bash(cat /c/Users/milut/Nextcloud/FH/SEM4/SWEN/tourplanner/TourPlanner/frontend/tsconfig.json 2>/dev/null || echo \"not found\")",
+      "Bash(cat /c/Users/milut/Nextcloud/FH/SEM4/SWEN/tourplanner/TourPlanner/frontend/tsconfig.spec.json 2>/dev/null || echo \"not found\")"
+    ]
+  }
+}
