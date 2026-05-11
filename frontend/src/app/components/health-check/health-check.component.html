@@ -1,0 +1,24 @@
+<div class="health-check">
+  <h2>Backend Status</h2>
+
+  @if (vm.loading()) {
+    <app-loading-spinner />
+  }
+
+  @if (vm.error()) {
+    <div class="status error">
+      ✗ {{ vm.error() }}
+    </div>
+  }
+
+  @if (vm.status()) {
+    <div class="status up">
+      ✓ {{ vm.status()!.status }} — {{ vm.status()!.service }}
+      <small>{{ vm.status()!.timestamp }}</small>
+    </div>
+  }
+
+  <button (click)="vm.ping()" [disabled]="vm.loading()">
+    Erneut prüfen
+  </button>
+</div>
