@@ -17,6 +17,9 @@ public class TourMapper {
                 .transportType(tour.getTransportType())
                 .distance(tour.getDistance())
                 .estimatedTime(tour.getEstimatedTime())
+                .imagePath(tour.getImagePath())
+                .createdAt(tour.getCreatedAt())
+                .updatedAt(tour.getUpdatedAt())
                 .build();
     }
 
@@ -30,6 +33,7 @@ public class TourMapper {
                 .transportType(dto.getTransportType())
                 .distance(dto.getDistance())
                 .estimatedTime(dto.getEstimatedTime())
+                .imagePath(dto.getImagePath())
                 .build();
     }
 }

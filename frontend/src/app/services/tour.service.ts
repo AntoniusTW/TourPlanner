@@ -1,12 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Tour } from '../models/tour.model';
 
-/**
- * ViewModel for tour views.
- * Holds tour state and exposes CRUD actions.
- */
 @Injectable({ providedIn: 'root' })
 export class TourService {
 
@@ -26,24 +23,21 @@ export class TourService {
     });
   }
 
-  create(tour: Tour): void {
-    this.http.post<Tour>(this.url, tour).subscribe({
-      next: (created) => this.tours.update(list => [...list, created]),
-      error: () => this.error.set('Tour konnte nicht erstellt werden')
-    });
+  create(tour: Omit<Tour, 'id' | 'createdAt' | 'updatedAt'>): Observable<Tour> {
+    return this.http.post<Tour>(this.url, tour).pipe(
+      tap(created => this.tours.update(list => [...list, created]))
+    );
   }
 
-  update(id: number, tour: Tour): void {
-    this.http.put<Tour>(`${this.url}/${id}`, tour).subscribe({
-      next: (updated) => this.tours.update(list => list.map(t => t.id === id ? updated : t)),
-      error: () => this.error.set('Tour konnte nicht aktualisiert werden')
-    });
+  update(id: string, tour: Tour): Observable<Tour> {
+    return this.http.put<Tour>(`${this.url}/${id}`, tour).pipe(
+      tap(updated => this.tours.update(list => list.map(t => t.id === id ? updated : t)))
+    );
   }
 
-  delete(id: number): void {
-    this.http.delete(`${this.url}/${id}`).subscribe({
-      next: () => this.tours.update(list => list.filter(t => t.id !== id)),
-      error: () => this.error.set('Tour konnte nicht gelöscht werden')
-    });
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`).pipe(
+      tap(() => this.tours.update(list => list.filter(t => t.id !== id)))
+    );
   }
 }

@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -25,7 +26,7 @@ public class TourService {
                 .toList();
     }
 
-    public TourDto findById(Long id) {
+    public TourDto findById(UUID id) {
         log.info("Fetching tour with id={}", id);
         return tourRepository.findById(id)
                 .map(tourMapper::toDto)
@@ -38,7 +39,7 @@ public class TourService {
         return tourMapper.toDto(saved);
     }
 
-    public TourDto update(Long id, TourDto dto) {
+    public TourDto update(UUID id, TourDto dto) {
         log.info("Updating tour with id={}", id);
         if (!tourRepository.existsById(id)) {
             throw new ResourceNotFoundException("Tour not found: " + id);
@@ -48,7 +49,7 @@ public class TourService {
         return tourMapper.toDto(saved);
     }
 
-    public void delete(Long id) {
+    public void delete(UUID id) {
         log.info("Deleting tour with id={}", id);
         if (!tourRepository.existsById(id)) {
             throw new ResourceNotFoundException("Tour not found: " + id);
