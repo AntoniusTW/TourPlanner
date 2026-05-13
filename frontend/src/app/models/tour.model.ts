@@ -20,3 +20,10 @@ export const TRANSPORT_TYPE_LABELS: Record<TransportType, string> = {
   WALKING:  'Zu Fuß',
   RUNNING:  'Laufen'
 };
+
+export const TRANSPORT_TYPE_ICONS: Record<TransportType, string> = {
+  CAR:      '🚗',
+  BICYCLE:  '🚴',
+  WALKING:  '🚶',
+  RUNNING:  '🏃'
+};

@@ -54,7 +54,7 @@
 
             <!-- Map thumbnail -->
             <div class="tourcard__map">
-              <span class="tourcard__map-placeholder">{{ transportIcon(tour.transportType) }}</span>
+              <span class="tourcard__map-placeholder">{{ transportIcons[tour.transportType] }}</span>
               <span class="tourcard__transport">{{ transportLabels[tour.transportType] }}</span>
             </div>
 
@@ -69,11 +69,11 @@
               </div>
               <div class="tourcard__stats">
                 <div class="tourcard__stat">
-                  <span class="v">{{ formatDistance(tour.distance) }}</span>
+                  <span class="v">{{ tour.distance | tourDistance }}</span>
                   <span class="l">Distanz</span>
                 </div>
                 <div class="tourcard__stat">
-                  <span class="v">{{ formatTime(tour.estimatedTime) }}</span>
+                  <span class="v">{{ tour.estimatedTime | tourTime }}</span>
                   <span class="l">Dauer</span>
                 </div>
                 <div class="tourcard__stat">

@@ -6,11 +6,14 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { switchMap, of } from 'rxjs';
 import { TourService } from '../../services/tour.service';
 import { TRANSPORT_TYPE_LABELS, TransportType, Tour } from '../../models/tour.model';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { AlertComponent } from '../../shared/alert/alert.component';
+import { FormFieldComponent } from '../../shared/form-field/form-field.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-tour-create',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, ConfirmDialogComponent, AlertComponent, FormFieldComponent],
   templateUrl: './tour-create.component.html',
   styleUrl: './tour-create.component.scss'
 })
@@ -25,9 +28,10 @@ export class TourCreateComponent implements OnInit {
   readonly submitting     = signal(false);
   readonly isEditMode     = signal(false);
   readonly loadingTour    = signal(false);
-  readonly selectedFile   = signal<File | null>(null);
-  readonly previewUrl     = signal<string | null>(null);
-  readonly existingImage  = signal<string | null>(null);
+  readonly selectedFile      = signal<File | null>(null);
+  readonly previewUrl        = signal<string | null>(null);
+  readonly existingImage     = signal<string | null>(null);
+  readonly showAbortConfirm  = signal(false);
 
   private tourId: string | null = null;
   private readonly destroyRef = inject(DestroyRef);
@@ -35,7 +39,7 @@ export class TourCreateComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private tourService: TourService,
-    private router: Router,
+    public router: Router,
     private route: ActivatedRoute
   ) {
     this.form = this.fb.group({
@@ -88,11 +92,6 @@ export class TourCreateComponent implements OnInit {
 
   field(name: string) { return this.form.get(name)!; }
 
-  isInvalid(name: string): boolean {
-    const f = this.field(name);
-    return f.invalid && (f.dirty || f.touched);
-  }
-
   onFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -119,6 +118,14 @@ export class TourCreateComponent implements OnInit {
   clearFile(): void {
     this.selectedFile.set(null);
     this.previewUrl.set(null);
+  }
+
+  tryAbort(): void {
+    if (this.form.dirty || this.selectedFile()) {
+      this.showAbortConfirm.set(true);
+    } else {
+      this.router.navigate(['/tours']);
+    }
   }
 
   submit(): void {

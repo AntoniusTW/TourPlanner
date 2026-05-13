@@ -42,11 +42,11 @@
       <div class="statgrid">
         <div class="stat">
           <div class="stat__l">Distanz</div>
-          <div class="stat__v">{{ formatDistance(tour.distance) }}</div>
+          <div class="stat__v">{{ tour.distance | tourDistance }}</div>
         </div>
         <div class="stat">
           <div class="stat__l">Dauer</div>
-          <div class="stat__v">{{ formatTime(tour.estimatedTime) }}</div>
+          <div class="stat__v">{{ tour.estimatedTime | tourTime }}</div>
         </div>
         <div class="stat">
           <div class="stat__l">Logs</div>
@@ -102,11 +102,11 @@
           </div>
           <div>
             <div class="field__label">Distanz</div>
-            <span class="mono text-sm">{{ formatDistance(tour.distance) }}</span>
+            <span class="mono text-sm">{{ tour.distance | tourDistance }}</span>
           </div>
           <div>
             <div class="field__label">Geschätzte Dauer</div>
-            <span class="mono text-sm">{{ formatTime(tour.estimatedTime) }}</span>
+            <span class="mono text-sm">{{ tour.estimatedTime | tourTime }}</span>
           </div>
           <div>
             <div class="field__label">Bild-Pfad</div>

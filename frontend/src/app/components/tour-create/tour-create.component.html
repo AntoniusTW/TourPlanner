@@ -12,29 +12,16 @@
 
   <!-- Success (nur im Create-Modus) -->
   @if (success()) {
-    <div class="card" style="margin-bottom:16px; border-color:var(--accent); background:var(--accent-soft);">
-      <div class="card__body" style="display:flex; align-items:center; gap:10px; color:var(--accent-ink);">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span style="font-size:13px; font-weight:500;">Tour wurde erfolgreich gespeichert!</span>
-        <button class="btn btn--ghost btn--sm" style="margin-left:auto;" (click)="success.set(false)">Weitere erstellen</button>
-      </div>
-    </div>
+    <app-alert type="success" message="Tour wurde erfolgreich gespeichert!">
+      <button class="btn btn--ghost btn--sm" style="margin-left:auto;" (click)="success.set(false)">
+        Weitere erstellen
+      </button>
+    </app-alert>
   }
 
   <!-- Fehler -->
   @if (serverError()) {
-    <div class="card" style="margin-bottom:16px; border-color:var(--danger); background:var(--danger-soft);">
-      <div class="card__body" style="display:flex; align-items:center; gap:10px; color:var(--danger);">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/>
-          <path d="M8 5v4M8 10.5v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-        </svg>
-        <span style="font-size:13px;">{{ serverError() }}</span>
-      </div>
-    </div>
+    <app-alert type="error" [message]="serverError()!" />
   }
 
   <!-- Tour wird geladen (Edit-Modus) -->
@@ -54,73 +41,58 @@
 
         <!-- Name -->
         <div class="fieldgrid" style="margin-bottom:14px;">
-          <div class="field">
-            <label class="field__label" for="name">Name <span style="color:var(--danger)">*</span></label>
-            <input class="input" id="name" formControlName="name" type="text" placeholder="z.B. Wienerwald-Runde" />
-            @if (isInvalid('name')) {
-              <span class="field__hint" style="color:var(--danger);">
-                @if (field('name').hasError('required')) { Name ist erforderlich. }
-                @if (field('name').hasError('maxlength')) { Maximal 100 Zeichen. }
-              </span>
-            }
-          </div>
+          <app-form-field label="Name" [required]="true" [control]="field('name')"
+            [errors]="{ required: 'Name ist erforderlich.', maxlength: 'Maximal 100 Zeichen.' }">
+            <input class="input" id="name" formControlName="name" type="text"
+                   placeholder="z.B. Wienerwald-Runde" />
+          </app-form-field>
         </div>
 
         <!-- Beschreibung -->
         <div class="fieldgrid" style="margin-bottom:14px;">
-          <div class="field">
-            <label class="field__label" for="description">Beschreibung</label>
+          <app-form-field label="Beschreibung" [control]="field('description')">
             <textarea class="textarea" id="description" formControlName="description" rows="3"
                       placeholder="Kurze Beschreibung der Tour"></textarea>
-          </div>
+          </app-form-field>
         </div>
 
         <!-- Von / Nach -->
         <div class="fieldgrid fieldgrid--2" style="margin-bottom:14px;">
-          <div class="field">
-            <label class="field__label" for="fromLocation">Von <span style="color:var(--danger)">*</span></label>
-            <input class="input" id="fromLocation" formControlName="fromLocation" type="text" placeholder="Startort" />
-            @if (isInvalid('fromLocation')) {
-              <span class="field__hint" style="color:var(--danger);">Startort ist erforderlich.</span>
-            }
-          </div>
-          <div class="field">
-            <label class="field__label" for="toLocation">Nach <span style="color:var(--danger)">*</span></label>
-            <input class="input" id="toLocation" formControlName="toLocation" type="text" placeholder="Zielort" />
-            @if (isInvalid('toLocation')) {
-              <span class="field__hint" style="color:var(--danger);">Zielort ist erforderlich.</span>
-            }
-          </div>
+          <app-form-field label="Von" [required]="true" [control]="field('fromLocation')"
+            [errors]="{ required: 'Startort ist erforderlich.' }">
+            <input class="input" id="fromLocation" formControlName="fromLocation" type="text"
+                   placeholder="Startort" />
+          </app-form-field>
+          <app-form-field label="Nach" [required]="true" [control]="field('toLocation')"
+            [errors]="{ required: 'Zielort ist erforderlich.' }">
+            <input class="input" id="toLocation" formControlName="toLocation" type="text"
+                   placeholder="Zielort" />
+          </app-form-field>
         </div>
 
         <!-- Transportart -->
         <div class="fieldgrid" style="margin-bottom:14px;">
-          <div class="field">
-            <label class="field__label" for="transportType">Transportart <span style="color:var(--danger)">*</span></label>
+          <app-form-field label="Transportart" [required]="true" [control]="field('transportType')"
+            [errors]="{ required: 'Transportart ist erforderlich.' }">
             <select class="select" id="transportType" formControlName="transportType">
               <option value="">— Bitte wählen —</option>
               @for (type of transportTypes; track type[0]) {
                 <option [value]="type[0]">{{ type[1] }}</option>
               }
             </select>
-            @if (isInvalid('transportType')) {
-              <span class="field__hint" style="color:var(--danger);">Transportart ist erforderlich.</span>
-            }
-          </div>
+          </app-form-field>
         </div>
 
         <!-- Distanz / Dauer -->
         <div class="fieldgrid fieldgrid--2" style="margin-bottom:20px;">
-          <div class="field">
-            <label class="field__label" for="distance">Distanz (km)</label>
-            <input class="input" id="distance" formControlName="distance" type="number" min="0" step="0.1"
-                   placeholder="z.B. 12.5" />
-          </div>
-          <div class="field">
-            <label class="field__label" for="estimatedTime">Dauer (Minuten)</label>
-            <input class="input" id="estimatedTime" formControlName="estimatedTime" type="number" min="0"
-                   placeholder="z.B. 90" />
-          </div>
+          <app-form-field label="Distanz (km)" [control]="field('distance')">
+            <input class="input" id="distance" formControlName="distance" type="number"
+                   min="0" step="0.1" placeholder="z.B. 12.5" />
+          </app-form-field>
+          <app-form-field label="Dauer (Minuten)" [control]="field('estimatedTime')">
+            <input class="input" id="estimatedTime" formControlName="estimatedTime" type="number"
+                   min="0" placeholder="z.B. 90" />
+          </app-form-field>
         </div>
 
         <!-- Bild -->
@@ -129,7 +101,6 @@
             <label class="field__label">Bild (optional)</label>
 
             @if (previewUrl()) {
-              <!-- Neue Datei ausgewählt: Preview zeigen -->
               <div class="img-preview-wrap">
                 <img [src]="previewUrl()!" class="img-preview" alt="Vorschau" />
                 <button type="button" class="img-preview-remove iconbtn iconbtn--danger"
@@ -141,7 +112,6 @@
                 <span class="img-preview-name">{{ selectedFile()!.name }}</span>
               </div>
             } @else if (existingImage()) {
-              <!-- Edit-Modus: bestehendes Bild anzeigen -->
               <div class="img-preview-wrap">
                 <img [src]="serverUrl + existingImage()!" class="img-preview" alt="Aktuelles Bild" />
                 <span class="img-preview-name">Aktuelles Bild (neues hochladen um es zu ersetzen)</span>
@@ -178,7 +148,7 @@
               {{ isEditMode() ? 'Änderungen speichern' : 'Tour speichern' }}
             }
           </button>
-          <a routerLink="/tours" class="btn btn--ghost">Abbrechen</a>
+          <button type="button" class="btn btn--ghost" (click)="tryAbort()">Abbrechen</button>
         </div>
 
       </form>
@@ -186,3 +156,14 @@
   </div>
 
 </div>
+
+@if (showAbortConfirm()) {
+  <app-confirm-dialog
+    title="Änderungen verwerfen?"
+    message="Du hast ungespeicherte Änderungen. Wenn du abbrichst, gehen diese verloren."
+    confirmLabel="Verwerfen"
+    cancelLabel="Weiter bearbeiten"
+    [dangerous]="true"
+    (confirmed)="router.navigate(['/tours'])"
+    (cancelled)="showAbortConfirm.set(false)" />
+}
