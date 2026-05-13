@@ -2,39 +2,85 @@
   <div class="detail-card">
     <h2>{{ tour.name }}</h2>
 
-    <div class="field">
-      <span class="label">Von</span>
-      <span>{{ tour.fromLocation }}</span>
-    </div>
-    <div class="field">
-      <span class="label">Nach</span>
-      <span>{{ tour.toLocation }}</span>
-    </div>
-    <div class="field">
-      <span class="label">Transport</span>
-      <span>{{ labels[tour.transportType] }}</span>
-    </div>
-    @if (tour.distance) {
-      <div class="field">
-        <span class="label">Distanz</span>
-        <span>{{ tour.distance }} km</span>
+  <div class="detail-panel">
+
+    <!-- Head -->
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="card__head">
+        <div style="flex:1; min-width:0;">
+          <h3 style="font-size:15px; font-weight:600; letter-spacing:-0.01em; margin:0;">{{ tour.name }}</h3>
+          <div class="route" style="margin-top:4px; font-size:12px; color:var(--ink-3); display:flex; align-items:center; gap:5px;">
+            <span>{{ tour.fromLocation }}</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 6h7M7 4l2 2-2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>{{ tour.toLocation }}</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <span class="pill pill--accent">{{ transportLabels[tour.transportType] }}</span>
+          <button class="iconbtn" (click)="close()" title="Schließen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
       </div>
-    }
-    @if (tour.estimatedTime) {
-      <div class="field">
-        <span class="label">Dauer</span>
-        <span>{{ tour.estimatedTime }} min</span>
+
+      <!-- Stats row -->
+      <div class="statgrid">
+        <div class="stat">
+          <div class="stat__l">Distanz</div>
+          <div class="stat__v">{{ formatDistance(tour.distance) }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat__l">Dauer</div>
+          <div class="stat__v">{{ formatTime(tour.estimatedTime) }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat__l">Logs</div>
+          <div class="stat__v">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat__l">Bewertung</div>
+          <div class="stat__v">—</div>
+        </div>
       </div>
-    }
+    </div>
+
+    <!-- Map placeholder -->
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="card__head"><h3>Karte</h3></div>
+      <div class="mapbox" style="border-radius: 0 0 var(--r-3) var(--r-3); height:200px;">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" style="color:var(--ink-4)">
+          <path d="M14 3C8.5 3 4 7.3 4 12.5C4 19.5 14 26 14 26C14 26 24 19.5 24 12.5C24 7.3 19.5 3 14 3Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <circle cx="14" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span style="font-size:12px;">Keine Karte verfügbar</span>
+      </div>
+    </div>
+
+    <!-- Description -->
     @if (tour.description) {
-      <div class="field">
-        <span class="label">Beschreibung</span>
-        <p>{{ tour.description }}</p>
+      <div class="card" style="margin-bottom: 12px;">
+        <div class="card__head"><h3>Beschreibung</h3></div>
+        <div class="card__body">
+          <p class="prose">{{ tour.description }}</p>
+        </div>
       </div>
     }
+
+    <!-- Tour logs placeholder -->
+    <div class="card">
+      <div class="card__head">
+        <h3>Tour-Logs</h3>
+        <span class="spacer"></span>
+        <span class="pill">0 Einträge</span>
+      </div>
+      <div class="card__body" style="text-align:center; padding: 32px 16px; color:var(--ink-3); font-size:13px;">
+        Noch keine Logs für diese Tour.
+      </div>
+
   </div>
 } @else {
   <div class="placeholder">
     <p>← Tour aus der Liste auswählen</p>
   </div>
+
 }

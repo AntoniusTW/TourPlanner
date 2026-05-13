@@ -25,3 +25,14 @@
     &.active { background: rgba(255,255,255,0.25); color: white; font-weight: 600; }
   }
 }
+.app {
+  display: grid;
+  grid-template-columns: 248px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.main {
+  overflow-y: auto;
+  min-height: 0;
+}

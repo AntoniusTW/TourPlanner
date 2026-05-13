@@ -1,12 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { TRANSPORT_TYPE_LABELS, TransportType } from '../../models/tour.model';
 
 @Component({
   selector: 'app-tour-create',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './tour-create.component.html',
   styleUrl: './tour-create.component.scss'
 })

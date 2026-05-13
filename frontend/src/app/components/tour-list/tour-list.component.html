@@ -1,42 +1,98 @@
-<div class="master-detail">
+<div class="page">
 
-  <!-- Master: Tour-Liste -->
-  <aside class="master">
-    <div class="master-header">
-      <h2>Touren</h2>
-      <span class="count">{{ vm.tours().length }}</span>
-      <a class="btn-add" routerLink="/tours/create">+ Neu</a>
+  <!-- Header -->
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">Touren</h1>
+      <p class="page__lede">{{ vm.tours().length }} Tour{{ vm.tours().length === 1 ? '' : 'en' }} gespeichert</p>
     </div>
+    <div class="page__actions">
+      <a routerLink="/tours/create" class="btn btn--primary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        Neue Tour
+      </a>
+    </div>
+  </div>
 
-    @if (vm.loading()) {
-      <app-loading-spinner />
-    }
+  <!-- Loading -->
+  @if (vm.loading()) {
+    <div class="empty">
+      <p>Touren werden geladen…</p>
+    </div>
+  }
 
-    @if (vm.error()) {
-      <div class="error-msg">{{ vm.error() }}</div>
-    }
+  <!-- Error -->
+  @if (vm.error()) {
+    <div class="empty">
+      <h3>Fehler beim Laden</h3>
+      <p>{{ vm.error() }}</p>
+    </div>
+  }
 
-    @if (!vm.loading() && vm.tours().length === 0 && !vm.error()) {
-      <p class="empty">Keine Touren vorhanden.</p>
-    }
+  <!-- Empty state -->
+  @if (!vm.loading() && !vm.error() && vm.tours().length === 0) {
+    <div class="empty">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="margin: 0 auto 8px; display:block; color: var(--ink-4)">
+        <path d="M16 4C10 4 5 8.5 5 14c0 6 11 18 11 18S27 20 27 14c0-5.5-5-10-11-10Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <circle cx="16" cy="14" r="3" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <h3>Noch keine Touren</h3>
+      <p>Erstelle deine erste Tour mit dem Button oben rechts.</p>
+    </div>
+  }
 
-    <ul class="tour-items">
-      @for (tour of vm.tours(); track tour.id) {
-        <li
-          class="tour-item"
-          [class.selected]="isSelected(tour)"
-          (click)="select(tour)"
-        >
-          <span class="tour-name">{{ tour.name }}</span>
-          <span class="tour-route">{{ tour.fromLocation }} → {{ tour.toLocation }}</span>
-        </li>
+  <!-- Grid + Detail split -->
+  @if (!vm.loading() && vm.tours().length > 0) {
+    <div [class]="vm.selectedTour() ? 'tours-split' : ''">
+
+      <!-- Tour grid -->
+      <div class="tourgrid">
+        @for (tour of vm.tours(); track tour.id) {
+          <div class="tourcard" [class.tourcard--selected]="isSelected(tour)" (click)="select(tour)">
+
+            <!-- Map thumbnail -->
+            <div class="tourcard__map">
+              <span class="tourcard__map-placeholder">{{ transportIcon(tour.transportType) }}</span>
+              <span class="tourcard__transport">{{ transportLabels[tour.transportType] }}</span>
+            </div>
+
+            <!-- Body -->
+            <div class="tourcard__body">
+              <div class="tourcard__name">{{ tour.name }}</div>
+              <div class="tourcard__route">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="3" cy="6" r="2" fill="currentColor" opacity=".5"/><path d="M5 6h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="9" cy="6" r="1.5" fill="currentColor"/></svg>
+                {{ tour.fromLocation }}
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 5h5M6 3l2 2-2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {{ tour.toLocation }}
+              </div>
+              <div class="tourcard__stats">
+                <div class="tourcard__stat">
+                  <span class="v">{{ formatDistance(tour.distance) }}</span>
+                  <span class="l">Distanz</span>
+                </div>
+                <div class="tourcard__stat">
+                  <span class="v">{{ formatTime(tour.estimatedTime) }}</span>
+                  <span class="l">Dauer</span>
+                </div>
+                <div class="tourcard__stat">
+                  <span class="v">—</span>
+                  <span class="l">Logs</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        }
+      </div>
+
+      <!-- Detail panel -->
+      @if (vm.selectedTour()) {
+        <app-tour-detail />
       }
-    </ul>
-  </aside>
 
-  <!-- Detail: ausgewählte Tour -->
-  <main class="detail">
-    <app-tour-detail />
-  </main>
+    </div>
+  }
 
 </div>

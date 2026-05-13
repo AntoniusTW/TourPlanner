@@ -17,6 +17,11 @@ export class TourService {
   readonly selectedTour = signal<Tour | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly selectedTour = signal<Tour | null>(null);
+
+  selectTour(tour: Tour | null): void {
+    this.selectedTour.set(tour);
+  }
 
   constructor(private http: HttpClient) {}
 

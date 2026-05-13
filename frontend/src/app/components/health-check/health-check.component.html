@@ -1,24 +1,63 @@
-<div class="health-check">
-  <h2>Backend Status</h2>
+<div class="page">
 
-  @if (vm.loading()) {
-    <app-loading-spinner />
-  }
-
-  @if (vm.error()) {
-    <div class="status error">
-      ✗ {{ vm.error() }}
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">System Health</h1>
+      <p class="page__lede">Backend-Status und Verbindungscheck</p>
     </div>
-  }
-
-  @if (vm.status()) {
-    <div class="status up">
-      ✓ {{ vm.status()!.status }} — {{ vm.status()!.service }}
-      <small>{{ vm.status()!.timestamp }}</small>
+    <div class="page__actions">
+      <button class="btn" (click)="vm.ping()" [disabled]="vm.loading()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" [style.animation]="vm.loading() ? 'spin .8s linear infinite' : 'none'">
+          <path d="M7 1.5A5.5 5.5 0 1 1 1.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Erneut prüfen
+      </button>
     </div>
-  }
+  </div>
 
-  <button (click)="vm.ping()" [disabled]="vm.loading()">
-    Erneut prüfen
-  </button>
+  <div class="card" style="max-width: 480px;">
+    <div class="card__head">
+      <h3>Backend</h3>
+      <span class="spacer"></span>
+      @if (vm.status()) {
+        <span class="pill pill--accent">● Online</span>
+      } @else if (vm.error()) {
+        <span class="pill" style="background:var(--danger-soft); color:var(--danger); border-color:transparent;">● Offline</span>
+      } @else {
+        <span class="pill">Prüfen…</span>
+      }
+    </div>
+    <div class="card__body">
+
+      @if (vm.loading()) {
+        <p class="muted text-sm">Verbindung wird geprüft…</p>
+      }
+
+      @if (vm.error()) {
+        <div style="color:var(--danger); font-size:13px; display:flex; gap:8px; align-items:flex-start;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0; margin-top:1px"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v4M8 10.5v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          {{ vm.error() }}
+        </div>
+      }
+
+      @if (vm.status(); as s) {
+        <div class="statgrid" style="margin: -16px;">
+          <div class="stat">
+            <div class="stat__l">Status</div>
+            <div class="stat__v" style="font-size:14px; color:var(--accent-ink);">{{ s.status }}</div>
+          </div>
+          <div class="stat">
+            <div class="stat__l">Service</div>
+            <div class="stat__v" style="font-size:14px;">{{ s.service }}</div>
+          </div>
+          <div class="stat" style="border-right:none; grid-column: span 2;">
+            <div class="stat__l">Zeitstempel</div>
+            <div class="stat__v" style="font-size:13px; font-weight:400;">{{ s.timestamp }}</div>
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
 </div>
