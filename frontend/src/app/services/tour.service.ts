@@ -12,6 +12,11 @@ export class TourService {
   readonly tours = signal<Tour[]>([]);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly selectedTour = signal<Tour | null>(null);
+
+  selectTour(tour: Tour | null): void {
+    this.selectedTour.set(tour);
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -37,7 +42,10 @@ export class TourService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/${id}`).pipe(
-      tap(() => this.tours.update(list => list.filter(t => t.id !== id)))
+      tap(() => {
+        this.tours.update(list => list.filter(t => t.id !== id));
+        if (this.selectedTour()?.id === id) this.selectedTour.set(null);
+      })
     );
   }
 }
