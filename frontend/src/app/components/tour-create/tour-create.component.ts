@@ -3,8 +3,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { switchMap, of } from 'rxjs';
 import { TourService } from '../../services/tour.service';
-import { TRANSPORT_TYPE_LABELS, TransportType } from '../../models/tour.model';
+import { TRANSPORT_TYPE_LABELS, TransportType, Tour } from '../../models/tour.model';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-tour-create',
@@ -15,13 +17,17 @@ import { TRANSPORT_TYPE_LABELS, TransportType } from '../../models/tour.model';
 export class TourCreateComponent implements OnInit {
 
   readonly transportTypes = Object.entries(TRANSPORT_TYPE_LABELS) as [TransportType, string][];
+  readonly serverUrl = environment.serverUrl;
 
   readonly form: FormGroup;
-  readonly success     = signal(false);
-  readonly serverError = signal<string | null>(null);
-  readonly submitting  = signal(false);
-  readonly isEditMode  = signal(false);
-  readonly loadingTour = signal(false);
+  readonly success        = signal(false);
+  readonly serverError    = signal<string | null>(null);
+  readonly submitting     = signal(false);
+  readonly isEditMode     = signal(false);
+  readonly loadingTour    = signal(false);
+  readonly selectedFile   = signal<File | null>(null);
+  readonly previewUrl     = signal<string | null>(null);
+  readonly existingImage  = signal<string | null>(null);
 
   private tourId: string | null = null;
   private readonly destroyRef = inject(DestroyRef);
@@ -51,21 +57,20 @@ export class TourCreateComponent implements OnInit {
     this.isEditMode.set(true);
     this.loadingTour.set(true);
 
-    // Erst im Cache suchen, dann fetch
     const cached = this.tourService.tours().find(t => t.id === this.tourId)
                 ?? (this.tourService.selectedTour()?.id === this.tourId
                     ? this.tourService.selectedTour()
                     : null);
 
     if (cached) {
-      this.form.patchValue(cached);
+      this.patchForm(cached);
       this.loadingTour.set(false);
     } else {
       this.tourService.getById(this.tourId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (tour) => {
-            this.form.patchValue(tour);
+            this.patchForm(tour);
             this.loadingTour.set(false);
           },
           error: () => {
@@ -76,11 +81,44 @@ export class TourCreateComponent implements OnInit {
     }
   }
 
+  private patchForm(tour: Tour): void {
+    this.form.patchValue(tour);
+    if (tour.imagePath) this.existingImage.set(tour.imagePath);
+  }
+
   field(name: string) { return this.form.get(name)!; }
 
   isInvalid(name: string): boolean {
     const f = this.field(name);
     return f.invalid && (f.dirty || f.touched);
+  }
+
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      this.serverError.set('Nur Bilddateien (JPEG, PNG, GIF, WebP) sind erlaubt.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.serverError.set('Datei darf maximal 10 MB groß sein.');
+      return;
+    }
+
+    this.serverError.set(null);
+    this.selectedFile.set(file);
+
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  clearFile(): void {
+    this.selectedFile.set(null);
+    this.previewUrl.set(null);
   }
 
   submit(): void {
@@ -91,7 +129,13 @@ export class TourCreateComponent implements OnInit {
 
     if (this.isEditMode() && this.tourId) {
       this.tourService.update(this.tourId, { id: this.tourId, ...this.form.value })
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap(updated => this.selectedFile()
+            ? this.tourService.uploadImage(updated.id!, this.selectedFile()!)
+            : of(updated)
+          )
+        )
         .subscribe({
           next: (updated) => {
             this.tourService.selectTour(updated);
@@ -105,11 +149,19 @@ export class TourCreateComponent implements OnInit {
         });
     } else {
       this.tourService.create(this.form.value)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          switchMap(created => this.selectedFile() && created.id
+            ? this.tourService.uploadImage(created.id, this.selectedFile()!)
+            : of(created)
+          )
+        )
         .subscribe({
           next: () => {
             this.success.set(true);
             this.form.reset();
+            this.selectedFile.set(null);
+            this.previewUrl.set(null);
             this.submitting.set(false);
           },
           error: () => {

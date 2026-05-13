@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { TRANSPORT_TYPE_LABELS } from '../../models/tour.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-tour-detail',
@@ -30,6 +31,10 @@ export class TourDetailComponent {
     const h = Math.floor(min / 60);
     const m = min % 60;
     return m === 0 ? `${h} h` : `${h} h ${m} m`;
+  }
+
+  imageUrl(path: string | undefined): string | null {
+    return path ? `${environment.serverUrl}${path}` : null;
   }
 
   close(): void {

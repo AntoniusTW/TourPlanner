@@ -1,12 +1,17 @@
 package at.fhtw.swen.tourplanner.service;
 
 import at.fhtw.swen.tourplanner.dto.TourDto;
+import at.fhtw.swen.tourplanner.exception.ResourceNotFoundException;
 import at.fhtw.swen.tourplanner.exception.TourNotFoundException;
 import at.fhtw.swen.tourplanner.mapper.TourMapper;
 import at.fhtw.swen.tourplanner.repository.TourRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +20,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -97,5 +103,37 @@ public class TourService {
         log.info("Uploaded image {} for tour id={}", filename, id);
         tour.setImagePath("/uploads/images/" + filename);
         return tourMapper.toDto(tourRepository.save(tour));
+    }
+
+    private static final Map<String, MediaType> EXTENSION_MEDIA_TYPES = Map.of(
+            "jpg",  MediaType.IMAGE_JPEG,
+            "jpeg", MediaType.IMAGE_JPEG,
+            "png",  MediaType.IMAGE_PNG,
+            "gif",  MediaType.IMAGE_GIF,
+            "webp", MediaType.parseMediaType("image/webp")
+    );
+
+    public ResponseEntity<Resource> getImage(UUID id) {
+        var tour = tourRepository.findById(id)
+                .orElseThrow(() -> new TourNotFoundException(id));
+
+        if (tour.getImagePath() == null) {
+            throw new ResourceNotFoundException("Kein Bild für diese Tour vorhanden");
+        }
+
+        String filename = Path.of(tour.getImagePath()).getFileName().toString();
+        Path filePath = Path.of(uploadDir).resolve(filename);
+        Resource resource = new FileSystemResource(filePath);
+
+        if (!resource.exists()) {
+            throw new ResourceNotFoundException("Bilddatei nicht gefunden: " + filename);
+        }
+
+        String ext = filename.contains(".")
+                ? filename.substring(filename.lastIndexOf('.') + 1).toLowerCase()
+                : "";
+        MediaType mediaType = EXTENSION_MEDIA_TYPES.getOrDefault(ext, MediaType.APPLICATION_OCTET_STREAM);
+
+        return ResponseEntity.ok().contentType(mediaType).body(resource);
     }
 }

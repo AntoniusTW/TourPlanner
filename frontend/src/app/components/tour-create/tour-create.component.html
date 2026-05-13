@@ -123,6 +123,44 @@
           </div>
         </div>
 
+        <!-- Bild -->
+        <div class="fieldgrid" style="margin-bottom:20px;">
+          <div class="field">
+            <label class="field__label">Bild (optional)</label>
+
+            @if (previewUrl()) {
+              <!-- Neue Datei ausgewählt: Preview zeigen -->
+              <div class="img-preview-wrap">
+                <img [src]="previewUrl()!" class="img-preview" alt="Vorschau" />
+                <button type="button" class="img-preview-remove iconbtn iconbtn--danger"
+                        title="Bild entfernen" (click)="clearFile()">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <span class="img-preview-name">{{ selectedFile()!.name }}</span>
+              </div>
+            } @else if (existingImage()) {
+              <!-- Edit-Modus: bestehendes Bild anzeigen -->
+              <div class="img-preview-wrap">
+                <img [src]="serverUrl + existingImage()!" class="img-preview" alt="Aktuelles Bild" />
+                <span class="img-preview-name">Aktuelles Bild (neues hochladen um es zu ersetzen)</span>
+              </div>
+            }
+
+            <label class="img-dropzone" for="imageFile">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="color:var(--ink-3)">
+                <path d="M10 3v9M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3 14v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>{{ selectedFile() ? selectedFile()!.name : 'Datei auswählen' }}</span>
+              <input id="imageFile" type="file" accept="image/jpeg,image/png,image/gif,image/webp"
+                     style="display:none" (change)="onFileSelect($event)" />
+            </label>
+            <span class="field__hint">JPEG, PNG, GIF oder WebP · max. 10 MB</span>
+          </div>
+        </div>
+
         <!-- Aktionen -->
         <div style="display:flex; gap:8px;">
           <button type="submit" class="btn btn--primary" [disabled]="submitting()">
