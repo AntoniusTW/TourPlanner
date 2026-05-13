@@ -76,6 +76,7 @@ a { color: inherit; text-decoration: none; }
   display: grid; place-items: center; cursor: pointer; color: var(--ink-2);
 }
 .iconbtn:hover { background: var(--bg-muted); color: var(--ink); }
+.iconbtn.iconbtn--danger:hover { background: var(--danger-soft); color: var(--danger); }
 
 /* ── Chips ───────────────────────────────────────── */
 .chip {
