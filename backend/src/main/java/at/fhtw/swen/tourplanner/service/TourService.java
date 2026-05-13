@@ -1,7 +1,7 @@
 package at.fhtw.swen.tourplanner.service;
 
 import at.fhtw.swen.tourplanner.dto.TourDto;
-import at.fhtw.swen.tourplanner.exception.ResourceNotFoundException;
+import at.fhtw.swen.tourplanner.exception.TourNotFoundException;
 import at.fhtw.swen.tourplanner.mapper.TourMapper;
 import at.fhtw.swen.tourplanner.repository.TourRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class TourService {
         log.info("Fetching tour with id={}", id);
         return tourRepository.findById(id)
                 .map(tourMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Tour not found: " + id));
+                .orElseThrow(() -> new TourNotFoundException(id));
     }
 
     public TourDto create(TourDto dto) {
@@ -42,7 +42,7 @@ public class TourService {
     public TourDto update(UUID id, TourDto dto) {
         log.info("Updating tour with id={}", id);
         if (!tourRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Tour not found: " + id);
+            throw new TourNotFoundException(id);
         }
         dto.setId(id);
         var saved = tourRepository.save(tourMapper.toEntity(dto));
@@ -52,7 +52,7 @@ public class TourService {
     public void delete(UUID id) {
         log.info("Deleting tour with id={}", id);
         if (!tourRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Tour not found: " + id);
+            throw new TourNotFoundException(id);
         }
         tourRepository.deleteById(id);
     }

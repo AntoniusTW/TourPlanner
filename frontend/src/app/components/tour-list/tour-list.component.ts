@@ -22,7 +22,9 @@ export class TourListComponent implements OnInit {
   }
 
   select(tour: Tour): void {
+    // Optimistisch sofort setzen (kein Flackern), dann frische Daten nachladen
     this.vm.selectTour(tour);
+    this.vm.loadById(tour.id!);
   }
 
   isSelected(tour: Tour): boolean {

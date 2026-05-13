@@ -24,6 +24,14 @@ export class TourService {
     this.selectedTour.set(tour);
   }
 
+  /** Lädt eine einzelne Tour vom Backend und setzt sie als selectedTour. */
+  loadById(id: string): void {
+    this.http.get<Tour>(`${this.url}/${id}`).subscribe({
+      next: (tour) => this.selectedTour.set(tour),
+      error: () => this.error.set(`Tour ${id} nicht gefunden`)
+    });
+  }
+
   loadAll(): void {
     this.loading.set(true);
     this.error.set(null);
