@@ -5,6 +5,7 @@ import at.fhtw.swen.tourplanner.service.TourService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,5 +53,10 @@ public class TourController {
     public ResponseEntity<TourDto> uploadImage(@PathVariable UUID id,
                                                @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(tourService.uploadImage(id, file));
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<Resource> getImage(@PathVariable UUID id) {
+        return tourService.getImage(id);
     }
 }

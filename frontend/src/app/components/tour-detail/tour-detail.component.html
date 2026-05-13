@@ -66,6 +66,16 @@
       </div>
     </div>
 
+    <!-- ── Tour-Bild ─────────────────────────────────── -->
+    @if (tour.imagePath) {
+      <div class="card" style="margin-bottom: 12px; overflow: hidden;">
+        <div class="card__head"><h3>Bild</h3></div>
+        <img [src]="imageUrl(tour.imagePath)!"
+             [alt]="tour.name"
+             style="width:100%; max-height:280px; object-fit:cover; display:block;" />
+      </div>
+    }
+
     <!-- ── Alle Tour-Attribute ────────────────────────── -->
     <div class="card" style="margin-bottom: 12px;">
       <div class="card__head"><h3>Details</h3></div>

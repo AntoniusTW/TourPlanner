@@ -66,4 +66,15 @@ export class TourService {
       })
     );
   }
+
+  uploadImage(id: string, file: File): Observable<Tour> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Tour>(`${this.url}/${id}/image`, formData).pipe(
+      tap(updated => {
+        this.tours.update(list => list.map(t => t.id === id ? updated : t));
+        if (this.selectedTour()?.id === id) this.selectedTour.set(updated);
+      })
+    );
+  }
 }
