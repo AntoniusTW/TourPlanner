@@ -1,43 +1,64 @@
 <div class="page">
 
+  <!-- Header -->
   <div class="page__header">
     <div>
-      <h1 class="page__title">Neue Tour</h1>
-      <p class="page__lede">Füge eine neue Tour zur Sammlung hinzu</p>
+      <h1 class="page__title">{{ isEditMode() ? 'Tour bearbeiten' : 'Neue Tour' }}</h1>
+      <p class="page__lede">
+        {{ isEditMode() ? 'Passe die Tour-Details an und speichere die Änderungen.' : 'Füge eine neue Tour zur Sammlung hinzu.' }}
+      </p>
     </div>
   </div>
 
+  <!-- Success (nur im Create-Modus) -->
   @if (success()) {
     <div class="card" style="margin-bottom:16px; border-color:var(--accent); background:var(--accent-soft);">
       <div class="card__body" style="display:flex; align-items:center; gap:10px; color:var(--accent-ink);">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span style="font-size:13px; font-weight:500;">Tour wurde erfolgreich gespeichert!</span>
         <button class="btn btn--ghost btn--sm" style="margin-left:auto;" (click)="success.set(false)">Weitere erstellen</button>
       </div>
     </div>
   }
 
+  <!-- Fehler -->
   @if (serverError()) {
     <div class="card" style="margin-bottom:16px; border-color:var(--danger); background:var(--danger-soft);">
       <div class="card__body" style="display:flex; align-items:center; gap:10px; color:var(--danger);">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v4M8 10.5v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M8 5v4M8 10.5v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
         <span style="font-size:13px;">{{ serverError() }}</span>
       </div>
     </div>
   }
 
-  <div class="card" style="max-width: 720px;">
-    <div class="card__head"><h3>Tour-Details</h3></div>
-    <div class="card__body">
+  <!-- Tour wird geladen (Edit-Modus) -->
+  @if (loadingTour()) {
+    <div class="empty" style="padding:24px; text-align:left;">
+      <p class="muted text-sm">Tour-Daten werden geladen…</p>
+    </div>
+  }
 
+  <!-- Form -->
+  <div class="card" style="max-width: 720px;" [style.display]="loadingTour() ? 'none' : ''">
+    <div class="card__head">
+      <h3>Tour-Details</h3>
+    </div>
+    <div class="card__body">
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
+        <!-- Name -->
         <div class="fieldgrid" style="margin-bottom:14px;">
           <div class="field">
             <label class="field__label" for="name">Name <span style="color:var(--danger)">*</span></label>
             <input class="input" id="name" formControlName="name" type="text" placeholder="z.B. Wienerwald-Runde" />
             @if (isInvalid('name')) {
-              <span class="field__hint" style="color:var(--danger); font-size:11.5px;">
+              <span class="field__hint" style="color:var(--danger);">
                 @if (field('name').hasError('required')) { Name ist erforderlich. }
                 @if (field('name').hasError('maxlength')) { Maximal 100 Zeichen. }
               </span>
@@ -45,30 +66,34 @@
           </div>
         </div>
 
+        <!-- Beschreibung -->
         <div class="fieldgrid" style="margin-bottom:14px;">
           <div class="field">
             <label class="field__label" for="description">Beschreibung</label>
-            <textarea class="textarea" id="description" formControlName="description" rows="3" placeholder="Kurze Beschreibung der Tour"></textarea>
+            <textarea class="textarea" id="description" formControlName="description" rows="3"
+                      placeholder="Kurze Beschreibung der Tour"></textarea>
           </div>
         </div>
 
+        <!-- Von / Nach -->
         <div class="fieldgrid fieldgrid--2" style="margin-bottom:14px;">
           <div class="field">
             <label class="field__label" for="fromLocation">Von <span style="color:var(--danger)">*</span></label>
             <input class="input" id="fromLocation" formControlName="fromLocation" type="text" placeholder="Startort" />
             @if (isInvalid('fromLocation')) {
-              <span class="field__hint" style="color:var(--danger); font-size:11.5px;">Startort ist erforderlich.</span>
+              <span class="field__hint" style="color:var(--danger);">Startort ist erforderlich.</span>
             }
           </div>
           <div class="field">
             <label class="field__label" for="toLocation">Nach <span style="color:var(--danger)">*</span></label>
             <input class="input" id="toLocation" formControlName="toLocation" type="text" placeholder="Zielort" />
             @if (isInvalid('toLocation')) {
-              <span class="field__hint" style="color:var(--danger); font-size:11.5px;">Zielort ist erforderlich.</span>
+              <span class="field__hint" style="color:var(--danger);">Zielort ist erforderlich.</span>
             }
           </div>
         </div>
 
+        <!-- Transportart -->
         <div class="fieldgrid" style="margin-bottom:14px;">
           <div class="field">
             <label class="field__label" for="transportType">Transportart <span style="color:var(--danger)">*</span></label>
@@ -79,37 +104,46 @@
               }
             </select>
             @if (isInvalid('transportType')) {
-              <span class="field__hint" style="color:var(--danger); font-size:11.5px;">Transportart ist erforderlich.</span>
+              <span class="field__hint" style="color:var(--danger);">Transportart ist erforderlich.</span>
             }
           </div>
         </div>
 
+        <!-- Distanz / Dauer -->
         <div class="fieldgrid fieldgrid--2" style="margin-bottom:20px;">
           <div class="field">
             <label class="field__label" for="distance">Distanz (km)</label>
-            <input class="input" id="distance" formControlName="distance" type="number" min="0" step="0.1" placeholder="z.B. 12.5" />
+            <input class="input" id="distance" formControlName="distance" type="number" min="0" step="0.1"
+                   placeholder="z.B. 12.5" />
           </div>
           <div class="field">
             <label class="field__label" for="estimatedTime">Dauer (Minuten)</label>
-            <input class="input" id="estimatedTime" formControlName="estimatedTime" type="number" min="0" placeholder="z.B. 90" />
+            <input class="input" id="estimatedTime" formControlName="estimatedTime" type="number" min="0"
+                   placeholder="z.B. 90" />
           </div>
         </div>
 
+        <!-- Aktionen -->
         <div style="display:flex; gap:8px;">
           <button type="submit" class="btn btn--primary" [disabled]="submitting()">
             @if (submitting()) {
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="animation:spin .8s linear infinite"><path d="M7 1.5A5.5 5.5 0 1 1 1.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                   style="animation:spin .8s linear infinite">
+                <path d="M7 1.5A5.5 5.5 0 1 1 1.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
               Wird gespeichert…
             } @else {
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              Tour speichern
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ isEditMode() ? 'Änderungen speichern' : 'Tour speichern' }}
             }
           </button>
           <a routerLink="/tours" class="btn btn--ghost">Abbrechen</a>
         </div>
 
       </form>
-
     </div>
   </div>
 

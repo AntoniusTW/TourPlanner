@@ -24,6 +24,11 @@ export class TourService {
     this.selectedTour.set(tour);
   }
 
+  /** Gibt eine einzelne Tour als Observable zurück (für Formulare). */
+  getById(id: string): Observable<Tour> {
+    return this.http.get<Tour>(`${this.url}/${id}`);
+  }
+
   /** Lädt eine einzelne Tour vom Backend und setzt sie als selectedTour. */
   loadById(id: string): void {
     this.http.get<Tour>(`${this.url}/${id}`).subscribe({

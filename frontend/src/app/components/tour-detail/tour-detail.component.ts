@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TourService } from '../../services/tour.service';
 import { TRANSPORT_TYPE_LABELS } from '../../models/tour.model';
 
 @Component({
   selector: 'app-tour-detail',
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, RouterLink],
   templateUrl: './tour-detail.component.html',
   styleUrl: './tour-detail.component.scss'
 })
