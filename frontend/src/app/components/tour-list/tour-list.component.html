@@ -1,0 +1,42 @@
+<div class="master-detail">
+
+  <!-- Master: Tour-Liste -->
+  <aside class="master">
+    <div class="master-header">
+      <h2>Touren</h2>
+      <span class="count">{{ vm.tours().length }}</span>
+      <a class="btn-add" routerLink="/tours/create">+ Neu</a>
+    </div>
+
+    @if (vm.loading()) {
+      <app-loading-spinner />
+    }
+
+    @if (vm.error()) {
+      <div class="error-msg">{{ vm.error() }}</div>
+    }
+
+    @if (!vm.loading() && vm.tours().length === 0 && !vm.error()) {
+      <p class="empty">Keine Touren vorhanden.</p>
+    }
+
+    <ul class="tour-items">
+      @for (tour of vm.tours(); track tour.id) {
+        <li
+          class="tour-item"
+          [class.selected]="isSelected(tour)"
+          (click)="select(tour)"
+        >
+          <span class="tour-name">{{ tour.name }}</span>
+          <span class="tour-route">{{ tour.fromLocation }} → {{ tour.toLocation }}</span>
+        </li>
+      }
+    </ul>
+  </aside>
+
+  <!-- Detail: ausgewählte Tour -->
+  <main class="detail">
+    <app-tour-detail />
+  </main>
+
+</div>

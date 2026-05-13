@@ -1,0 +1,40 @@
+@if (vm.selectedTour(); as tour) {
+  <div class="detail-card">
+    <h2>{{ tour.name }}</h2>
+
+    <div class="field">
+      <span class="label">Von</span>
+      <span>{{ tour.fromLocation }}</span>
+    </div>
+    <div class="field">
+      <span class="label">Nach</span>
+      <span>{{ tour.toLocation }}</span>
+    </div>
+    <div class="field">
+      <span class="label">Transport</span>
+      <span>{{ labels[tour.transportType] }}</span>
+    </div>
+    @if (tour.distance) {
+      <div class="field">
+        <span class="label">Distanz</span>
+        <span>{{ tour.distance }} km</span>
+      </div>
+    }
+    @if (tour.estimatedTime) {
+      <div class="field">
+        <span class="label">Dauer</span>
+        <span>{{ tour.estimatedTime }} min</span>
+      </div>
+    }
+    @if (tour.description) {
+      <div class="field">
+        <span class="label">Beschreibung</span>
+        <p>{{ tour.description }}</p>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="placeholder">
+    <p>← Tour aus der Liste auswählen</p>
+  </div>
+}
