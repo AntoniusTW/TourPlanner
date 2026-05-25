@@ -1,7 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TourService } from '../../services/tour.service';
+import { TourLogService } from '../../services/tour-log.service';
 import { TRANSPORT_TYPE_LABELS } from '../../models/tour.model';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog.component';
 import { TourDistancePipe } from '../../shared/pipes/tour-distance.pipe';
@@ -20,7 +21,16 @@ export class TourDetailComponent {
   readonly showDeleteConfirm = signal(false);
   readonly deleting = signal(false);
 
-  constructor(public vm: TourService) {}
+  constructor(public vm: TourService, public logService: TourLogService) {
+    effect(() => {
+      const tour = this.vm.selectedTour();
+      if (tour?.id) {
+        this.logService.loadAllForTour(tour.id);
+      } else {
+        this.logService.logs.set([]);
+      }
+    });
+  }
 
   imageUrl(path: string | undefined): string | null {
     return path ? `${environment.serverUrl}${path}` : null;
