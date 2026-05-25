@@ -40,6 +40,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(ex.getMessage(), 404));
     }
 
+    @ExceptionHandler(TourLogNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleTourLogNotFound(TourLogNotFoundException ex) {
+        log.warn("Tour log not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody(ex.getMessage(), 404));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Bad request: {}", ex.getMessage());
