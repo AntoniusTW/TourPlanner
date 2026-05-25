@@ -25,6 +25,10 @@ bin/
 
 # Logs
 *.log
+logs/
+
+# Temp files (Word, Excel, etc.)
+~$*
 
 # Sensitive
 .env
