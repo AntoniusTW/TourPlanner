@@ -1,0 +1,66 @@
+<div class="logform">
+
+  @if (serverError()) {
+    <app-alert type="error" [message]="serverError()!" />
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+    <!-- Datum / Bewertung -->
+    <div class="fieldgrid fieldgrid--2" style="margin-bottom:12px;">
+      <app-form-field label="Datum" [required]="true" [control]="field('date')"
+        [errors]="{ required: 'Datum ist erforderlich.' }">
+        <input class="input" formControlName="date" type="date" />
+      </app-form-field>
+      <app-form-field label="Bewertung (1–5)" [required]="true" [control]="field('rating')"
+        [errors]="{ required: 'Bewertung ist erforderlich.', min: 'Mindestens 1.', max: 'Maximal 5.' }">
+        <input class="input" formControlName="rating" type="number" min="1" max="5" placeholder="1–5" />
+      </app-form-field>
+    </div>
+
+    <!-- Dauer / Distanz -->
+    <div class="fieldgrid fieldgrid--2" style="margin-bottom:12px;">
+      <app-form-field label="Dauer (Minuten)" [required]="true" [control]="field('duration')"
+        [errors]="{ required: 'Dauer ist erforderlich.', min: 'Mindestens 1 Minute.' }">
+        <input class="input" formControlName="duration" type="number" min="1" placeholder="z.B. 90" />
+      </app-form-field>
+      <app-form-field label="Distanz (km)" [control]="field('distance')"
+        [errors]="{ min: 'Muss positiv sein.' }">
+        <input class="input" formControlName="distance" type="number" min="0" step="0.1" placeholder="optional" />
+      </app-form-field>
+    </div>
+
+    <!-- Schwierigkeit -->
+    <div class="fieldgrid" style="margin-bottom:12px;">
+      <app-form-field label="Schwierigkeit" [required]="true" [control]="field('difficulty')"
+        [errors]="{ required: 'Schwierigkeit ist erforderlich.' }">
+        <select class="select" formControlName="difficulty">
+          <option value="">— Bitte wählen —</option>
+          @for (d of difficulties; track d[0]) {
+            <option [value]="d[0]">{{ d[1] }}</option>
+          }
+        </select>
+      </app-form-field>
+    </div>
+
+    <!-- Kommentar -->
+    <div class="fieldgrid" style="margin-bottom:16px;">
+      <app-form-field label="Kommentar" [control]="field('comment')">
+        <textarea class="textarea" formControlName="comment" rows="2"
+                  placeholder="Wie war die Tour?"></textarea>
+      </app-form-field>
+    </div>
+
+    <!-- Aktionen -->
+    <div style="display:flex; gap:8px;">
+      <button type="submit" class="btn btn--primary btn--sm" [disabled]="submitting()">
+        @if (submitting()) { Wird gespeichert… }
+        @else { {{ isEditMode ? 'Änderungen speichern' : 'Log speichern' }} }
+      </button>
+      <button type="button" class="btn btn--ghost btn--sm" (click)="cancelled.emit()">
+        Abbrechen
+      </button>
+    </div>
+
+  </form>
+</div>

@@ -25,10 +25,27 @@ bin/
 
 # Logs
 *.log
+logs/
+
+# Temp files (Word, Excel, etc.)
+~$*
 
 # Sensitive
 .env
 .env.local
+backend/src/main/resources/application-local.properties
 
 # AI Scripts
 docs/generate_wireframes.py
+create-issues.sh
+
+# Node / Angular (frontend)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/cache/
+frontend/coverage/
+
+# Spring Boot (backend)
+backend/target/
+backend/build/
+backend/*.jar

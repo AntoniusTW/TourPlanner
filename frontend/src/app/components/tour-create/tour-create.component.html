@@ -1,0 +1,169 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="page__header">
+    <div>
+      <h1 class="page__title">{{ isEditMode() ? 'Tour bearbeiten' : 'Neue Tour' }}</h1>
+      <p class="page__lede">
+        {{ isEditMode() ? 'Passe die Tour-Details an und speichere die Änderungen.' : 'Füge eine neue Tour zur Sammlung hinzu.' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Success (nur im Create-Modus) -->
+  @if (success()) {
+    <app-alert type="success" message="Tour wurde erfolgreich gespeichert!">
+      <button class="btn btn--ghost btn--sm" style="margin-left:auto;" (click)="success.set(false)">
+        Weitere erstellen
+      </button>
+    </app-alert>
+  }
+
+  <!-- Fehler -->
+  @if (serverError()) {
+    <app-alert type="error" [message]="serverError()!" />
+  }
+
+  <!-- Tour wird geladen (Edit-Modus) -->
+  @if (loadingTour()) {
+    <div class="empty" style="padding:24px; text-align:left;">
+      <p class="muted text-sm">Tour-Daten werden geladen…</p>
+    </div>
+  }
+
+  <!-- Form -->
+  <div class="card" style="max-width: 720px;" [style.display]="loadingTour() ? 'none' : ''">
+    <div class="card__head">
+      <h3>Tour-Details</h3>
+    </div>
+    <div class="card__body">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+        <!-- Name -->
+        <div class="fieldgrid" style="margin-bottom:14px;">
+          <app-form-field label="Name" [required]="true" [control]="field('name')"
+            [errors]="{ required: 'Name ist erforderlich.', maxlength: 'Maximal 100 Zeichen.' }">
+            <input class="input" id="name" formControlName="name" type="text"
+                   placeholder="z.B. Wienerwald-Runde" />
+          </app-form-field>
+        </div>
+
+        <!-- Beschreibung -->
+        <div class="fieldgrid" style="margin-bottom:14px;">
+          <app-form-field label="Beschreibung" [control]="field('description')">
+            <textarea class="textarea" id="description" formControlName="description" rows="3"
+                      placeholder="Kurze Beschreibung der Tour"></textarea>
+          </app-form-field>
+        </div>
+
+        <!-- Von / Nach -->
+        <div class="fieldgrid fieldgrid--2" style="margin-bottom:14px;">
+          <app-form-field label="Von" [required]="true" [control]="field('fromLocation')"
+            [errors]="{ required: 'Startort ist erforderlich.' }">
+            <input class="input" id="fromLocation" formControlName="fromLocation" type="text"
+                   placeholder="Startort" />
+          </app-form-field>
+          <app-form-field label="Nach" [required]="true" [control]="field('toLocation')"
+            [errors]="{ required: 'Zielort ist erforderlich.' }">
+            <input class="input" id="toLocation" formControlName="toLocation" type="text"
+                   placeholder="Zielort" />
+          </app-form-field>
+        </div>
+
+        <!-- Transportart -->
+        <div class="fieldgrid" style="margin-bottom:14px;">
+          <app-form-field label="Transportart" [required]="true" [control]="field('transportType')"
+            [errors]="{ required: 'Transportart ist erforderlich.' }">
+            <select class="select" id="transportType" formControlName="transportType">
+              <option value="">— Bitte wählen —</option>
+              @for (type of transportTypes; track type[0]) {
+                <option [value]="type[0]">{{ type[1] }}</option>
+              }
+            </select>
+          </app-form-field>
+        </div>
+
+        <!-- Distanz / Dauer -->
+        <div class="fieldgrid fieldgrid--2" style="margin-bottom:20px;">
+          <app-form-field label="Distanz (km)" [control]="field('distance')">
+            <input class="input" id="distance" formControlName="distance" type="number"
+                   min="0" step="0.1" placeholder="z.B. 12.5" />
+          </app-form-field>
+          <app-form-field label="Dauer (Minuten)" [control]="field('estimatedTime')">
+            <input class="input" id="estimatedTime" formControlName="estimatedTime" type="number"
+                   min="0" placeholder="z.B. 90" />
+          </app-form-field>
+        </div>
+
+        <!-- Bild -->
+        <div class="fieldgrid" style="margin-bottom:20px;">
+          <div class="field">
+            <label class="field__label">Bild (optional)</label>
+
+            @if (previewUrl()) {
+              <div class="img-preview-wrap">
+                <img [src]="previewUrl()!" class="img-preview" alt="Vorschau" />
+                <button type="button" class="img-preview-remove iconbtn iconbtn--danger"
+                        title="Bild entfernen" (click)="clearFile()">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <span class="img-preview-name">{{ selectedFile()!.name }}</span>
+              </div>
+            } @else if (existingImage()) {
+              <div class="img-preview-wrap">
+                <img [src]="serverUrl + existingImage()!" class="img-preview" alt="Aktuelles Bild" />
+                <span class="img-preview-name">Aktuelles Bild (neues hochladen um es zu ersetzen)</span>
+              </div>
+            }
+
+            <label class="img-dropzone" for="imageFile">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="color:var(--ink-3)">
+                <path d="M10 3v9M6 7l4-4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3 14v1a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>{{ selectedFile() ? selectedFile()!.name : 'Datei auswählen' }}</span>
+              <input id="imageFile" type="file" accept="image/jpeg,image/png,image/gif,image/webp"
+                     style="display:none" (change)="onFileSelect($event)" />
+            </label>
+            <span class="field__hint">JPEG, PNG, GIF oder WebP · max. 10 MB</span>
+          </div>
+        </div>
+
+        <!-- Aktionen -->
+        <div style="display:flex; gap:8px;">
+          <button type="submit" class="btn btn--primary" [disabled]="submitting()">
+            @if (submitting()) {
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+                   style="animation:spin .8s linear infinite">
+                <path d="M7 1.5A5.5 5.5 0 1 1 1.5 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Wird gespeichert…
+            } @else {
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" stroke-width="1.5"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              {{ isEditMode() ? 'Änderungen speichern' : 'Tour speichern' }}
+            }
+          </button>
+          <button type="button" class="btn btn--ghost" (click)="tryAbort()">Abbrechen</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>
+
+@if (showAbortConfirm()) {
+  <app-confirm-dialog
+    title="Änderungen verwerfen?"
+    message="Du hast ungespeicherte Änderungen. Wenn du abbrichst, gehen diese verloren."
+    confirmLabel="Verwerfen"
+    cancelLabel="Weiter bearbeiten"
+    [dangerous]="true"
+    (confirmed)="router.navigate(['/tours'])"
+    (cancelled)="showAbortConfirm.set(false)" />
+}

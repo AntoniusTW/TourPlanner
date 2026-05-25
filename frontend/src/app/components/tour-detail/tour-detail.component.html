@@ -1,0 +1,243 @@
+@if (vm.selectedTour(); as tour) {
+
+  <div class="detail-panel">
+
+    <!-- ── Head card ───────────────────────────────────── -->
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="card__head">
+        <div style="flex:1; min-width:0;">
+          <h3 style="font-size:15px; font-weight:600; letter-spacing:-0.01em; margin:0;">{{ tour.name }}</h3>
+          <div style="margin-top:4px; font-size:12px; color:var(--ink-3); display:flex; align-items:center; gap:5px;">
+            <span>{{ tour.fromLocation }}</span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M3 6h7M7 4l2 2-2 2" stroke="currentColor" stroke-width="1.2"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>{{ tour.toLocation }}</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <span class="pill pill--accent">{{ transportLabels[tour.transportType] }}</span>
+          <a [routerLink]="['/tours', tour.id, 'edit']" class="iconbtn" title="Bearbeiten">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7Z" stroke="currentColor" stroke-width="1.3"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <button class="iconbtn iconbtn--danger" (click)="showDeleteConfirm.set(true)" title="Löschen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 3.5h10M5.5 3.5V2.5h3v1M5 3.5l.5 8M9 3.5l-.5 8" stroke="currentColor"
+                    stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="iconbtn" (click)="close()" title="Schließen">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stat-Grid: alle messbaren Attribute -->
+      <div class="statgrid">
+        <div class="stat">
+          <div class="stat__l">Distanz</div>
+          <div class="stat__v">{{ tour.distance | tourDistance }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat__l">Dauer</div>
+          <div class="stat__v">{{ tour.estimatedTime | tourTime }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat__l">Logs</div>
+          <div class="stat__v">{{ logService.logs().length }}</div>
+        </div>
+        <div class="stat">
+          <div class="stat__l">Bewertung</div>
+          <div class="stat__v">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Karten-Placeholder ──────────────────────────── -->
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="card__head"><h3>Karte</h3></div>
+      <div class="mapbox" style="border-radius: 0 0 var(--r-3) var(--r-3); height: 200px;">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style="color: var(--ink-4);">
+          <path d="M16 3C10 3 5 7.8 5 13.5C5 21 16 30 16 30C16 30 27 21 27 13.5C27 7.8 22 3 16 3Z"
+                stroke="currentColor" stroke-width="1.5" fill="none"/>
+          <circle cx="16" cy="13" r="4" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <span style="font-size: 12.5px; font-weight: 500;">Map wird in Final-Version integriert</span>
+      </div>
+    </div>
+
+    <!-- ── Tour-Bild ─────────────────────────────────── -->
+    @if (tour.imagePath) {
+      <div class="card" style="margin-bottom: 12px; overflow: hidden;">
+        <div class="card__head"><h3>Bild</h3></div>
+        <img [src]="imageUrl(tour.imagePath)!"
+             [alt]="tour.name"
+             style="width:100%; max-height:280px; object-fit:cover; display:block;" />
+      </div>
+    }
+
+    <!-- ── Alle Tour-Attribute ────────────────────────── -->
+    <div class="card" style="margin-bottom: 12px;">
+      <div class="card__head"><h3>Details</h3></div>
+      <div class="card__body" style="display:flex; flex-direction:column; gap:10px;">
+
+        @if (tour.description) {
+          <div>
+            <div class="field__label" style="margin-bottom:3px;">Beschreibung</div>
+            <p class="prose" style="margin:0;">{{ tour.description }}</p>
+          </div>
+          <div class="divider"></div>
+        }
+
+        <div class="fieldgrid fieldgrid--2" style="gap:8px;">
+          <div>
+            <div class="field__label">Transportart</div>
+            <span class="mono text-sm">{{ transportLabels[tour.transportType] }}</span>
+          </div>
+          <div>
+            <div class="field__label">Distanz</div>
+            <span class="mono text-sm">{{ tour.distance | tourDistance }}</span>
+          </div>
+          <div>
+            <div class="field__label">Geschätzte Dauer</div>
+            <span class="mono text-sm">{{ tour.estimatedTime | tourTime }}</span>
+          </div>
+          <div>
+            <div class="field__label">Bild-Pfad</div>
+            <span class="mono text-sm muted">{{ tour.imagePath ?? '—' }}</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="fieldgrid fieldgrid--2" style="gap:8px;">
+          <div>
+            <div class="field__label">Erstellt</div>
+            <span class="mono text-sm muted">{{ tour.createdAt ? (tour.createdAt | date:'dd.MM.yyyy HH:mm') : '—' }}</span>
+          </div>
+          <div>
+            <div class="field__label">Zuletzt geändert</div>
+            <span class="mono text-sm muted">{{ tour.updatedAt ? (tour.updatedAt | date:'dd.MM.yyyy HH:mm') : '—' }}</span>
+          </div>
+          <div>
+            <div class="field__label">ID</div>
+            <span class="mono text-sm muted" style="word-break:break-all; font-size:10px;">{{ tour.id }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Tour-Logs ─────────────────────────────────── -->
+    <div class="card">
+      <div class="card__head">
+        <h3>Tour-Logs</h3>
+        <span class="spacer"></span>
+        @if (logService.logs().length) {
+          <span class="pill">{{ logService.logs().length }} {{ logService.logs().length === 1 ? 'Eintrag' : 'Einträge' }}</span>
+        }
+        @if (!showLogForm()) {
+          <button class="btn btn--primary btn--sm" style="margin-left:8px;" (click)="openNewLog()">
+            + Neuer Log
+          </button>
+        }
+      </div>
+
+      <!-- Neuer-Log-Formular -->
+      @if (showLogForm() && !editingLog()) {
+        <div style="padding:0 16px 16px;">
+          <app-tour-log-form
+            [tourId]="tour.id!"
+            (saved)="onLogSaved()"
+            (cancelled)="closeLogForm()" />
+        </div>
+      }
+
+      <!-- Log-Liste -->
+      @if (logService.loading()) {
+        <div class="card__body" style="text-align:center; color:var(--ink-3); font-size:13px;">
+          Logs werden geladen…
+        </div>
+      } @else if (logService.logs().length === 0 && !showLogForm()) {
+        <div class="card__body" style="text-align:center; padding:28px 16px; color:var(--ink-3); font-size:13px;">
+          Noch keine Logs – klicke „Neuer Log" um den ersten hinzuzufügen.
+        </div>
+      } @else {
+        <div class="loglist">
+          @for (log of logService.logs(); track log.id) {
+            <!-- Edit-Formular für diesen Log -->
+            @if (editingLog()?.id === log.id) {
+              <div style="padding:0 16px 16px;">
+                <app-tour-log-form
+                  [tourId]="tour.id!"
+                  [log]="editingLog()"
+                  (saved)="onLogSaved()"
+                  (cancelled)="closeLogForm()" />
+              </div>
+            } @else {
+              <div class="logitem">
+                <div class="logitem__top">
+                  <span class="logitem__date">{{ log.date | date:'dd.MM.yyyy' }}</span>
+                  <span class="pill pill--{{ log.difficulty | lowercase }}">{{ difficultyLabels[log.difficulty] }}</span>
+                  <span class="logitem__stars">{{ starsFor(log.rating) }}</span>
+                  <span class="spacer"></span>
+                  <button class="iconbtn" title="Bearbeiten" (click)="editLog(log)">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                      <path d="M9.5 2.5l2 2-7 7H2.5v-2l7-7Z" stroke="currentColor" stroke-width="1.3"
+                            stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <button class="iconbtn iconbtn--danger" title="Löschen" (click)="confirmDeleteLog(log)">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                      <path d="M2 3.5h10M5.5 3.5V2.5h3v1M5 3.5l.5 8M9 3.5l-.5 8"
+                            stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="logitem__stats">
+                  <span>{{ log.duration }} min</span>
+                  @if (log.distance) { <span>{{ log.distance }} km</span> }
+                </div>
+                @if (log.comment) {
+                  <p class="logitem__comment">{{ log.comment }}</p>
+                }
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+
+  @if (showDeleteConfirm()) {
+    <app-confirm-dialog
+      title="Tour löschen"
+      [message]="'Willst du die Tour &quot;' + tour.name + '&quot; wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.'"
+      confirmLabel="Löschen"
+      cancelLabel="Abbrechen"
+      [dangerous]="true"
+      [loading]="deleting()"
+      (confirmed)="confirmDelete()"
+      (cancelled)="showDeleteConfirm.set(false)" />
+  }
+
+  @if (showDeleteLogConfirm()) {
+    <app-confirm-dialog
+      title="Log löschen"
+      message="Willst du diesen Log wirklich löschen?"
+      confirmLabel="Löschen"
+      cancelLabel="Abbrechen"
+      [dangerous]="true"
+      [loading]="!!deletingLogId()"
+      (confirmed)="doDeleteLog()"
+      (cancelled)="showDeleteLogConfirm.set(false); logToDelete.set(null)" />
+  }
+
+}

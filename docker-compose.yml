@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: tourplanner-db
+    ports:
+      - "${DB_PORT:-5433}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME:-tourplanner}
+      POSTGRES_USER: ${DB_USER:-tourplanner}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-tourplanner}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:

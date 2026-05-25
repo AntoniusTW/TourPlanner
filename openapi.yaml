@@ -1,0 +1,259 @@
+openapi: 3.0.3
+info:
+  title: TourPlanner API
+  description: REST API für die TourPlanner-Applikation (SWEN Semester Project)
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8081
+    description: Local development server
+
+tags:
+  - name: Tours
+    description: Tour-Verwaltung
+
+paths:
+  /api/tours:
+    get:
+      tags: [Tours]
+      summary: Alle Touren abrufen
+      operationId: getAllTours
+      responses:
+        '200':
+          description: Liste aller Touren
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TourDto'
+
+    post:
+      tags: [Tours]
+      summary: Neue Tour erstellen
+      operationId: createTour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TourDto'
+      responses:
+        '201':
+          description: Tour erfolgreich erstellt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TourDto'
+        '400':
+          description: Validierungsfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tours/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      tags: [Tours]
+      summary: Tour nach ID abrufen
+      operationId: getTourById
+      responses:
+        '200':
+          description: Tour gefunden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TourDto'
+        '404':
+          description: Tour nicht gefunden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Tours]
+      summary: Tour aktualisieren
+      operationId: updateTour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TourDto'
+      responses:
+        '200':
+          description: Tour erfolgreich aktualisiert
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TourDto'
+        '400':
+          description: Validierungsfehler
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tour nicht gefunden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Tours]
+      summary: Tour löschen
+      operationId: deleteTour
+      responses:
+        '204':
+          description: Tour erfolgreich gelöscht
+        '404':
+          description: Tour nicht gefunden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/tours/{id}/image:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    post:
+      tags: [Tours]
+      summary: Bild für eine Tour hochladen
+      operationId: uploadTourImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Bilddatei (JPEG, PNG, GIF, WebP; max. 10 MB)
+      responses:
+        '200':
+          description: Bild hochgeladen, aktualisierte Tour wird zurückgegeben
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TourDto'
+        '400':
+          description: Ungültige Datei
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tour nicht gefunden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/health:
+    get:
+      tags: [Tours]
+      summary: Health-Check
+      operationId: health
+      responses:
+        '200':
+          description: Service ist erreichbar
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                  timestamp:
+                    type: string
+                    format: date-time
+                  service:
+                    type: string
+                    example: tourplanner
+
+components:
+  schemas:
+    TransportType:
+      type: string
+      enum: [CAR, BICYCLE, WALKING, RUNNING]
+
+    TourDto:
+      type: object
+      required: [name, fromLocation, toLocation, transportType]
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          example: Wienerwald Wanderung
+        description:
+          type: string
+          example: Schöne Wanderroute durch den Wienerwald
+        fromLocation:
+          type: string
+          example: Wien Hütteldorf
+        toLocation:
+          type: string
+          example: Klosterneuburg
+        transportType:
+          $ref: '#/components/schemas/TransportType'
+        distance:
+          type: number
+          format: double
+          description: Distanz in Kilometern
+          example: 18.5
+        estimatedTime:
+          type: integer
+          description: Geschätzte Zeit in Minuten
+          example: 240
+        imagePath:
+          type: string
+          readOnly: true
+          example: /uploads/images/abc123.jpeg
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 404
+        message:
+          type: string
+          example: Tour not found
+        errors:
+          type: object
+          additionalProperties:
+            type: string

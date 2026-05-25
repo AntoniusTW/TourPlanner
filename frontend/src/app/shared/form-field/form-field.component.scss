@@ -1,0 +1,12 @@
+:host {
+  display: contents;
+}
+
+.required-mark {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+.field__hint--error {
+  color: var(--danger);
+}
