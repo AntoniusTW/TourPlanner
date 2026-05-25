@@ -5,6 +5,7 @@ import at.fhtw.swen.tourplanner.exception.ResourceNotFoundException;
 import at.fhtw.swen.tourplanner.exception.TourNotFoundException;
 import at.fhtw.swen.tourplanner.mapper.TourMapper;
 import at.fhtw.swen.tourplanner.repository.TourRepository;
+import at.fhtw.swen.tourplanner.strategy.RouteCalculationStrategyFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +36,7 @@ public class TourService {
 
     private final TourRepository tourRepository;
     private final TourMapper tourMapper;
+    private final RouteCalculationStrategyFactory strategyFactory;
 
     @Value("${tour.images.upload-dir}")
     private String uploadDir;
@@ -55,6 +57,7 @@ public class TourService {
 
     public TourDto create(TourDto dto) {
         log.info("Creating tour: {}", dto.getName());
+        applyEstimatedTimeIfMissing(dto);
         var saved = tourRepository.save(tourMapper.toEntity(dto));
         return tourMapper.toDto(saved);
     }
@@ -65,6 +68,7 @@ public class TourService {
             throw new TourNotFoundException(id);
         }
         dto.setId(id);
+        applyEstimatedTimeIfMissing(dto);
         var saved = tourRepository.save(tourMapper.toEntity(dto));
         return tourMapper.toDto(saved);
     }
@@ -135,5 +139,19 @@ public class TourService {
         MediaType mediaType = EXTENSION_MEDIA_TYPES.getOrDefault(ext, MediaType.APPLICATION_OCTET_STREAM);
 
         return ResponseEntity.ok().contentType(mediaType).body(resource);
+    }
+
+    /**
+     * Berechnet estimatedTime via Strategy Pattern wenn distance bekannt,
+     * aber noch keine manuelle Zeit gesetzt wurde.
+     */
+    private void applyEstimatedTimeIfMissing(TourDto dto) {
+        if (dto.getDistance() != null && dto.getEstimatedTime() == null && dto.getTransportType() != null) {
+            int minutes = strategyFactory.getStrategy(dto.getTransportType())
+                    .calculateEstimatedTime(dto.getDistance());
+            dto.setEstimatedTime(minutes);
+            log.debug("Estimated time calculated via strategy: {} min for {} km ({})",
+                    minutes, dto.getDistance(), dto.getTransportType());
+        }
     }
 }
